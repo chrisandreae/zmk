@@ -8,16 +8,12 @@ config BOARD
 config ZMK_SPLIT_BLE_ROLE_CENTRAL
     default y
 
-config ZMK_KEYBOARD_NAME
-    default "Glove80 V0 Left"
 endif # BOARD_GLOVE80_V0_LH
 
 if BOARD_GLOVE80_V0_RH
 config BOARD
     default "glove80 v0 rh"
 
-config ZMK_KEYBOARD_NAME
-    default "Glove80 V0 Right"
 endif # BOARD_GLOVE80_V0_RH
 
 if BOARD_GLOVE80_V0_LH || BOARD_GLOVE80_V0_RH
@@ -28,17 +24,8 @@ config ZMK_SPLIT
 config BT_CTLR
     default BT
 
-config ZMK_BLE
-    default y
-
-config ZMK_USB
-    default y
-
-config ZMK_BATTERY_VOLTAGE_DIVIDER
-    default y
-
-config ZMK_BATTERY_NRF_VDDH
-    default y
+config ZMK_KSCAN_MATRIX_WAIT_BETWEEN_OUTPUTS
+    default 5
 
 config PINCTRL
     default y
@@ -62,5 +49,15 @@ config LED_PWM
     default y
 
 endif # ZMK_BACKLIGHT
+
+if ZMK_RGB_UNDERGLOW
+
+config SPI
+    default y
+
+config WS2812_STRIP
+    default y
+
+endif # ZMK_RGB_UNDERGLOW
 
 endif # BOARD_GLOVE80_V0_LH || BOARD_GLOVE80_V0_RH

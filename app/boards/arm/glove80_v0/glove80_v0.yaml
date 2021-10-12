@@ -1,5 +1,6 @@
-identifier: glove80_v0_rh
-name: Glove80_V0_RH
+identifier: glove80_v0
+name: Glove80 v0
+url: https://www.moergo.com/
 type: mcu
 arch: arm
 toolchain:
@@ -13,3 +14,6 @@ supported:
   - ieee802154
   - pwm
   - watchdog
+  - gpio
+  - i2c
+  - spi
