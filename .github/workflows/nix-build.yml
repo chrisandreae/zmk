@@ -59,4 +59,4 @@ jobs:
         with:
           artifacts: "glove80.uf2"
           artifactErrorsFailBuild: true
-          omitBody: true
+          generateReleaseNotes: true
