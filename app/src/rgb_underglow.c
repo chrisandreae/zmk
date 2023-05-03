@@ -16,7 +16,7 @@
 #include <zmk/ble.h>
 #include <zmk/endpoints.h>
 #include <zmk/keymap.h>
-#include <zmk/led_indicators.h>
+#include <zmk/hid_indicators.h>
 #include <zmk/usb.h>
 
 #include <zephyr/logging/log.h>
@@ -78,7 +78,7 @@ static struct rgb_underglow_state state;
 static const struct device *ext_power;
 #endif
 
-int zmk_rgb_set_ext_power();
+void zmk_rgb_set_ext_power();
 
 static struct zmk_led_hsb hsb_scale_min_max(struct zmk_led_hsb hsb) {
     hsb.b = CONFIG_ZMK_RGB_UNDERGLOW_BRT_MIN +
@@ -255,7 +255,12 @@ static void zmk_led_write_pixels() {
 }
 
 #define UNDERGLOW_INDICATORS DT_PATH(underglow_indicators)
-#define UNDERGLOW_INDICATORS_ENABLED defined(DT_N_S_underglow_indicators_EXISTS)
+
+#if defined(DT_N_S_underglow_indicators_EXISTS)
+#  define UNDERGLOW_INDICATORS_ENABLED 1
+#else
+#  define UNDERGLOW_INDICATORS_ENABLED 0
+#endif
 
 #if !UNDERGLOW_INDICATORS_ENABLED
 static int zmk_led_generate_status() { return 0; }
@@ -301,6 +306,10 @@ void zmk_led_battery_level(int bat_level, const uint8_t *addresses, int addresse
     }
 }
 
+#define ZMK_LED_NUMLOCK_BIT BIT(0)
+#define ZMK_LED_CAPSLOCK_BIT BIT(1)
+#define ZMK_LED_SCROLLLOCK_BIT BIT(2)
+
 static int zmk_led_generate_status() {
     for (int i = 0; i < STRIP_NUM_PIXELS; i++) {
         status_pixels[i] = (struct led_rgb){r : 0, g : 0, b : 0};
@@ -314,7 +323,7 @@ static int zmk_led_generate_status() {
                           DT_PROP_LEN(UNDERGLOW_INDICATORS, bat_rhs));
 
     // CAPSLOCK/NUMLOCK/SCROLLOCK STATUS
-    zmk_leds_flags_t led_flags = zmk_leds_get_current_flags();
+    zmk_hid_indicators led_flags = zmk_hid_indicators_get_current_profile();
 
     if (led_flags & ZMK_LED_CAPSLOCK_BIT)
         status_pixels[DT_PROP(UNDERGLOW_INDICATORS, capslock)] = red;
@@ -504,7 +513,7 @@ int zmk_rgb_underglow_get_state(bool *on_off) {
     return 0;
 }
 
-int zmk_rgb_set_ext_power() {
+void zmk_rgb_set_ext_power() {
 #if IS_ENABLED(CONFIG_ZMK_RGB_UNDERGLOW_EXT_POWER)
     if (ext_power == NULL)
         return;
