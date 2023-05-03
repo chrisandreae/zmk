@@ -16,6 +16,9 @@ CONFIG_BT_DIS_PNP_VID=0x16c0
 CONFIG_BT_DIS_MANUF="MoErgo"
 CONFIG_BT_DIS_MODEL="Glove80"
 
+# Work-around for Windows bug with battery notifications
+CONFIG_BT_GATT_ENFORCE_SUBSCRIPTION=n
+
 # Enable MPU
 CONFIG_ARM_MPU=y
 

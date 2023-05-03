@@ -43,6 +43,9 @@ config ZMK_BATTERY_NRF_VDDH
 config ZMK_KSCAN_MATRIX_WAIT_BETWEEN_OUTPUTS
     default 5
 
+config PINCTRL
+    default y
+
 if USB
 
 config USB_NRFX
