@@ -2,8 +2,19 @@
 
 set -euo pipefail
 
+ignored_modules=(hal_espressif)
+
 prefetch_project() {
   local p=$1
+  local name
+  name="$(jq -r .name <<< "$p")"
+
+  if [[ " ${ignored_modules[*]} " =~ " ${name} " ]]; then
+    echo "Skipping: $name" >&2
+    return
+  fi
+
+  echo "Prefetching: $name" >&2
 
   sha256=$(nix-prefetch-git \
     --quiet \

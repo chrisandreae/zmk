@@ -44,7 +44,7 @@ let
   ]);
 
   requiredZephyrModules = [
-    "cmsis" "hal_nordic" "tinycrypt" "littlefs"
+    "cmsis" "hal_nordic" "tinycrypt"  "picolibc" "lvgl" "picolibc" "segger"
   ];
 
   zephyrModuleDeps = builtins.filter (x: builtins.elem x.name requiredZephyrModules) zephyr.modules;
@@ -79,7 +79,7 @@ stdenvNoCC.mkDerivation {
   cmakeFlags = [
     # "-DZephyrBuildConfiguration_ROOT=${zephyr}/zephyr"
     # TODO: is this required? if not, why not?
-    # "-DZEPHYR_BASE=${zephyr}/zephyr"
+    "-DZEPHYR_BASE=${zephyr}/zephyr"
     "-DBOARD_ROOT=."
     "-DBOARD=${board}"
     "-DZEPHYR_TOOLCHAIN_VARIANT=gnuarmemb"
