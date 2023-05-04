@@ -16,7 +16,7 @@
 #include <zmk/ble.h>
 #include <zmk/endpoints.h>
 #include <zmk/keymap.h>
-#include <zmk/hid_indicators.h>
+/* #include <zmk/hid_indicators.h> */
 #include <zmk/usb.h>
 
 #include <zephyr/logging/log.h>
@@ -304,6 +304,15 @@ void zmk_led_battery_level(int bat_level, const uint8_t *addresses, int addresse
             status_pixels[addresses[i]] = bat_colour;
         }
     }
+}
+
+// Patch out peripheral reporting support
+static int zmk_battery_state_of_peripheral_charge() {
+    return 50;
+}
+typedef uint8_t zmk_hid_indicators;
+static zmk_hid_indicators zmk_hid_indicators_get_current_profile() {
+    return 0;
 }
 
 #define ZMK_LED_NUMLOCK_BIT BIT(0)
