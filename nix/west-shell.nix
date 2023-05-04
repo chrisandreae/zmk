@@ -21,7 +21,7 @@ let
   pythonDependencies = ps: with ps; [
     pyelftools
     pyyaml
-    canopen
+    # canopen
     packaging
     progress
     anytree
