@@ -19,30 +19,53 @@ let
       doCheck = false;
       doInstallCheck = false;
     });
-
-    canopen = pysuper.can.overrideAttrs (_: {
-      # Also has timing sensitive tests
-      #         task = self.network.send_periodic(0x123, [1, 2, 3], 0.01)
-      #         time.sleep(0.1)
-      # >       self.assertTrue(9 <= bus.queue.qsize() <= 11)
-      # E       AssertionError: False is not true
-      doCheck = false;
-      doInstallCheck = false;
-    });
   };
 
   python = (buildPackages.python3.override { inherit packageOverrides; }).withPackages (ps: with ps; [
     pyelftools
     pyyaml
-    canopen
     packaging
     progress
     anytree
     intelhex
-
-    # TODO: this was required but not in shell.nix
     pykwalify
   ]);
+
+  # Prune the large gcc-arm-embedded package to include just the architectures
+  # that we're building for.
+  gcc-arm-embedded-pruned =
+    let
+      src = gcc-arm-embedded;
+      architectures = ["v7e-m+fp"];
+      architecturePrefixes = builtins.map (x: toString src + "/" + x) [
+        "arm-none-eabi/lib/thumb/"
+        "arm-none-eabi/lib/arm/"
+        "lib/gcc/arm-none-eabi/${src.version}/thumb/"
+      ];
+      prunedPaths = builtins.map (x: toString src + "/" + x) [
+        "share/doc"
+        "share/info"
+        "share/man"
+      ];
+    in
+    lib.cleanSourceWith {
+      name = "gcc-arm-embedded-pruned";
+      inherit src;
+      filter = (
+        path: type:
+        let
+          prunePath = builtins.elem path prunedPaths;
+          matchingArchPrefix = lib.findFirst (p: lib.hasPrefix p path) null architecturePrefixes;
+        in
+        if prunePath then
+          builtins.trace (path + ": pruned") false
+        else if !isNull matchingArchPrefix then
+          let relPath = lib.removePrefix matchingArchPrefix path;
+              matchesArchitecture = builtins.any (arch: lib.hasPrefix arch relPath) architectures;
+          in builtins.trace (path + ": arch retained " + lib.boolToString matchesArchitecture) matchesArchitecture
+        else true
+      );
+    };
 
   requiredZephyrModules = [
     "cmsis" "hal_nordic" "tinycrypt" "littlefs"
@@ -69,7 +92,9 @@ stdenvNoCC.mkDerivation {
         # Fetched by west
         relPath == "modules" || relPath == "tools" || relPath == "zephyr" ||
         # Not part of ZMK
-        relPath == "lambda" || relPath == ".github"
+        relPath == "lambda" || relPath == ".github" ||
+        # Not needed to build
+        relPath == "test" || relPath == "app/tests" || relPath == "docs"
       );
     };
 
@@ -84,19 +109,19 @@ stdenvNoCC.mkDerivation {
     "-DBOARD_ROOT=."
     "-DBOARD=${board}"
     "-DZEPHYR_TOOLCHAIN_VARIANT=gnuarmemb"
-    "-DGNUARMEMB_TOOLCHAIN_PATH=${gcc-arm-embedded}"
+    "-DGNUARMEMB_TOOLCHAIN_PATH=${gcc-arm-embedded-pruned}"
     # TODO: maybe just use a cross environment for this gcc
-    "-DCMAKE_C_COMPILER=${gcc-arm-embedded}/bin/arm-none-eabi-gcc"
-    "-DCMAKE_CXX_COMPILER=${gcc-arm-embedded}/bin/arm-none-eabi-g++"
-    "-DCMAKE_AR=${gcc-arm-embedded}/bin/arm-none-eabi-ar"
-    "-DCMAKE_RANLIB=${gcc-arm-embedded}/bin/arm-none-eabi-ranlib"
+    "-DCMAKE_C_COMPILER=${gcc-arm-embedded-pruned}/bin/arm-none-eabi-gcc"
+    "-DCMAKE_CXX_COMPILER=${gcc-arm-embedded-pruned}/bin/arm-none-eabi-g++"
+    "-DCMAKE_AR=${gcc-arm-embedded-pruned}/bin/arm-none-eabi-ar"
+    "-DCMAKE_RANLIB=${gcc-arm-embedded-pruned}/bin/arm-none-eabi-ranlib"
     "-DZEPHYR_MODULES=${lib.concatStringsSep ";" zephyrModuleDeps}"
   ] ++
   (lib.optional (shield != null) "-DSHIELD=${shield}") ++
   (lib.optional (keymap != null) "-DKEYMAP_FILE=${keymap}") ++
   (lib.optional (kconfig != null) "-DCONF_FILE=${kconfig}");
 
-  nativeBuildInputs = [ cmake ninja python dtc gcc-arm-embedded ];
+  nativeBuildInputs = [ cmake ninja python dtc ];
   buildInputs = [ zephyr ];
 
   installPhase = ''

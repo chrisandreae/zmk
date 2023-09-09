@@ -21,11 +21,11 @@ let
   pythonDependencies = ps: with ps; [
     pyelftools
     pyyaml
-    canopen
     packaging
     progress
     anytree
     intelhex
+    pykwalify
     west
   ];
 
