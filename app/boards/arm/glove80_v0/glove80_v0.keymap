@@ -12,9 +12,6 @@
 #include <dt-bindings/zmk/rgb.h>
 
 #define HYPER LC(LS(LG(LALT)))
-#define LOCK LG(LC(Q))
-#define JAPA LC(LS(J))
-#define ENGL LC(LS(SEMI))
 
 // layers
 #define DEFAULT 0
@@ -34,6 +31,7 @@
             bindings = <&mo LOWER>, <&to LOWER>;
         };
 
+        // mod/mod-shift tap-dance
         command_td: command_td_1 {
             compatible = "zmk,behavior-tap-dance";
             label = "COMMAND_TAP_DANCE";
@@ -57,6 +55,49 @@
             tapping-term-ms = <200>;
             bindings = <&kp LCTRL>, <&kp LS(LCTRL)>;
         };
+
+        next_lock: next_lock_hold_tap {
+            compatible = "zmk,behavior-hold-tap";
+            label = "NEXT_LOCK_HOLD_TAP";
+            #binding-cells = <2>;
+            flavor = "tap-preferred";
+            tapping-term-ms = <200>;
+            bindings = <&kp>, <&emacs_next>;
+        };
+
+        #define LOCK LG(LC(Q))
+        #define NEXT_LOCK &next_lock LOCK 0
+
+        // BT select/disconnect tap-dance
+        bt_1_td: bt_1_td_1 {
+            compatible = "zmk,behavior-tap-dance";
+            label = "BT1_TAP_DANCE";
+            #binding-cells = <0>;
+            tapping-term-ms = <200>;
+            bindings = <&bt_1>, <&bt BT_DISCONNECT 1>;
+        };
+        bt_2_td: bt_2_td_1 {
+            compatible = "zmk,behavior-tap-dance";
+            label = "BT2_TAP_DANCE";
+            #binding-cells = <0>;
+            tapping-term-ms = <200>;
+            bindings = <&bt_2>, <&bt BT_DISCONNECT 2>;
+        };
+        bt_3_td: bt_3_td_1 {
+            compatible = "zmk,behavior-tap-dance";
+            label = "BT3_TAP_DANCE";
+            #binding-cells = <0>;
+            tapping-term-ms = <200>;
+            bindings = <&bt_3>, <&bt BT_DISCONNECT 3>;
+        };
+        bt_0_td: bt_0_td_1 {
+            compatible = "zmk,behavior-tap-dance";
+            label = "BT0_TAP_DANCE";
+            #binding-cells = <0>;
+            tapping-term-ms = <200>;
+            bindings = <&bt_0>, <&bt BT_DISCONNECT 0>;
+        };
+
         magic: magic_hold_tap {
             compatible = "zmk,behavior-hold-tap";
             label = "MAGIC_HOLD_TAP";
@@ -111,8 +152,28 @@
                 = <&out OUT_BLE>,
                   <&bt BT_SEL 3>;
         };
-    };
 
+        emacs_next: emacs_next_0 {
+            label = "Emacs_Next";
+            compatible = "zmk,behavior-macro";
+            #binding-cells = <0>;
+            bindings
+                = <&kp LC(X)>,
+                  <&kp GRAVE>;
+        };
+
+        es_reload: es_reload_0 {
+            label = "ES_Reload";
+            compatible = "zmk,behavior-macro";
+            #binding-cells = <0>;
+            bindings
+                = <&macro_tap_time 10>,
+                  <&kp ESC>,
+                  <&kp L>,
+                  <&kp L>,
+                  <&kp D>;
+        };
+    };
 
     keymap {
         compatible = "zmk,keymap";
@@ -124,7 +185,7 @@
             &kp TAB        &kp Q       &kp W       &kp E       &kp R       &kp T                                                                       &kp Y   &kp U   &kp I       &kp O       &kp P       &kp BSLH
             &kp ESC        &kp A       &kp S       &kp D       &kp F       &kp G                                                                       &kp H   &kp J   &kp K       &kp L       &kp SEMI    &kp SQT
             &kp RET        &kp Z       &kp X       &kp C       &kp V       &kp B   &option_td  &command_td &kp HYPER  &layer_td  &kp RGUI &ctrl_td     &kp N   &kp M   &kp COMMA   &kp DOT     &kp FSLH    &kp LANG1
-            &magic MAGIC 0 &kp GRAVE   &kp LOCK    &kp LEFT    &kp RIGHT           &kp BSPC    &kp DEL     &kp LSHIFT &kp RSHIFT &kp RET  &kp SPACE            &kp UP  &kp DOWN    &kp LBKT    &kp RBKT    &kp LANG2
+            &magic MAGIC 0 &kp GRAVE   NEXT_LOCK   &kp LEFT    &kp RIGHT           &kp BSPC    &kp DEL     &kp LSHIFT &kp RSHIFT &kp RET  &kp SPACE            &kp UP  &kp DOWN    &kp LBKT    &kp RBKT    &kp LANG2
             >;
         };
 
@@ -135,7 +196,7 @@
             &trans            &none               &none           &kp UP          &none           &kp END                                                                               &kp RPAR     &kp KP_N7    &kp KP_N8    &kp KP_N9     &kp KP_MINUS    &kp SLCK
             &trans            &none               &kp LEFT        &kp DOWN        &kp RIGHT       &kp PGUP                                                                              &kp PRCNT    &kp KP_N4    &kp KP_N5    &kp KP_N6     &kp KP_PLUS     &none
             &trans            &kp K_CMENU         &none           &none           &none           &kp PGDN        &kp LANG1   &kp LANG2   &trans      &to DEFAULT &trans      &trans    &kp COMMA    &kp KP_N1    &kp KP_N2    &kp KP_N3     &kp KP_ENTER    &trans
-            &trans            &kp CAPS            &kp INS         &kp HOME        &kp END                         &trans      &trans      &trans      &trans      &trans      &kp KP_N0              &kp PG_UP    &kp PG_DN    &kp KP_DOT    &kp KP_ENTER    &trans
+            &trans            &kp CAPS            &kp LOCK        &kp HOME        &kp END                         &trans      &trans      &trans      &trans      &trans      &kp KP_N0              &kp PG_UP    &kp PG_DN    &kp KP_DOT    &kp KP_ENTER    &trans
             >;
         };
 
@@ -143,21 +204,21 @@
             bindings = <
             &bt BT_CLR        &none               &none           &none           &none                                                                                                           &none      &none      &none      &none      &bt BT_CLR_ALL
             &none             &none               &none           &none           &none           &none                                                                                &none      &none      &none      &none      &none      &none
-            &none             &rgb_ug RGB_SPI     &rgb_ug RGB_SAI &rgb_ug RGB_HUI &rgb_ug RGB_BRI &rgb_ug RGB_TOG                                                                      &none      &none      &none      &none      &none      &none
+            &ota_bootloader   &rgb_ug RGB_SPI     &rgb_ug RGB_SAI &rgb_ug RGB_HUI &rgb_ug RGB_BRI &rgb_ug RGB_TOG                                                                      &none      &none      &none      &none      &none      &none
             &bootloader       &rgb_ug RGB_SPD     &rgb_ug RGB_SAD &rgb_ug RGB_HUD &rgb_ug RGB_BRD &rgb_ug RGB_EFF                                                                      &none      &none      &none      &none      &none      &bootloader
-            &sys_reset        &none               &none           &none           &none           &none           &bt_2     &bt_3     &none            &none     &none     &none       &none      &none      &none      &none      &none      &reset
-            &none             &none               &none           &none           &none                           &bt_0     &bt_1     &out OUT_USB     &none     &none     &none                  &none      &none      &none      &none      &to FACTORY_TEST
+            &sys_reset        &none               &none           &none           &none           &none           &bt_2_td  &bt_3_td  &none            &none     &none     &none       &none      &none      &none      &none      &none      &sys_reset
+            &none             &none               &none           &none           &none                           &bt_0_td  &bt_1_td  &out OUT_USB     &none     &none     &none                  &none      &none      &none      &none      &tog 3
             >;
         };
 
-        factory_test_layer {
+        es {
             bindings = <
-            &kp N0   &kp N6   &kp N2   &kp N8   &kp N4                                                                              &kp N4   &kp N8   &kp N2   &kp N6   &kp N0
-            &kp N1   &kp N7   &kp N3   &kp N9   &kp N5   &kp N0                                                            &kp N0   &kp N5   &kp N9   &kp N3   &kp N7   &kp N1
-            &kp N2   &kp N8   &kp N4   &kp N0   &kp N6   &kp N1                                                            &kp N1   &kp N6   &kp N0   &kp N4   &kp N8   &kp N2
-            &kp N3   &kp N9   &kp N5   &kp N1   &kp N7   &kp N2                                                            &kp N2   &kp N7   &kp N1   &kp N5   &kp N9   &kp N3
-            &kp N4   &kp N0   &kp N6   &kp N2   &kp N8   &kp N3   &kp N4   &kp N5   &kp N6      &kp N6   &kp N5   &kp N4   &kp N3   &kp N8   &kp N2   &kp N6   &kp N0   &kp N4
-            &kp N5   &kp N1   &kp N7   &kp N3   &kp N9            &kp N7   &kp N8   &kp N9      &kp N9   &kp N8   &kp N7            &kp N9   &kp N3   &kp N7   &kp N1   &kp N5
+            &es_reload &trans   &trans   &trans   &trans                                                                              &trans   &trans   &trans   &trans   &trans
+            &trans     &trans   &trans   &trans   &trans   &trans                                                            &trans   &trans   &trans   &trans   &trans   &trans
+            &trans     &trans   &trans   &trans   &trans   &trans                                                            &trans   &trans   &trans   &trans   &trans   &trans
+            &trans     &trans   &trans   &trans   &trans   &trans                                                            &trans   &trans   &trans   &trans   &trans   &trans
+            &trans     &trans   &trans   &trans   &trans   &trans   &trans   &trans   &trans      &trans   &trans   &trans   &trans   &trans   &trans   &trans   &trans   &none
+            &trans     &trans   &trans   &trans   &trans            &trans   &trans   &trans      &trans   &trans   &trans            &trans   &trans   &trans   &trans   &tog 3
             >;
         };
     };

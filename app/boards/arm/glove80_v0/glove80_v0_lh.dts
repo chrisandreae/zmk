@@ -92,7 +92,7 @@
 
         /* SPI */
         reg = <0>; /* ignored, but necessary for SPI bindings */
-        spi-max-frequency = <2000000>;
+        spi-max-frequency = <4000000>;
 
         /* WS2812 */
         chain-length = <40>; /* 18 keys have underglow at the moment */
